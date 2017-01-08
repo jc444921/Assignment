@@ -1,25 +1,15 @@
 __author__ = 'jc444921'
-
-
 # Initialize the constants
+
+book_list = []
 # load csv
-def menus():
-    book_list = []
+def load_book_menus():
     load_book = open("books.csv")
     lines = load_book.readlines()
     for line in lines:
-        line = line.strip()
-        p = line.find(",")
-        menu1 = line[0:p]
-        line = line[(p + 1):]
-        p = line.find(",")
-        menu2 = line[0:p]
-        line = line[(p + 1):]
-        p = line.find(",")
-        menu3 = line[0:p]
-        menu4 = line[(p + 1):]
-        menu =[menu1,menu2,menu3,menu4]
-        book_list.append(menu)
+        line = line.strip().split(",")
+        print(line)
+        book_list.append(line)
     load_book.close()
     return book_list
 
@@ -27,8 +17,8 @@ def menus():
 
 def main():
     print("Reading List 1.0 - by Xiting Jia")
+    book_list = load_book_menus()
     choice = display_menu()
-    book_list = menus()
     while choice != "Q":
         if choice == "R":
             list_required_book(book_list)
@@ -44,6 +34,7 @@ def main():
     print("{} books saved to books.csv".format(len(book_list)))
     save_books(book_list)
     print("Have a nice day :)")
+# end of main()
 
 def display_menu():
     print("Menu")
@@ -55,59 +46,54 @@ def display_menu():
     choice = input(">>>")
     choice = choice.strip().upper()
     return choice
-
-# end of main()
+# end of defined display menu
 
 def list_required_book(book_list):
     print("Required books:")
     lst = []
-    pages=0
-    books=0
+    pages = 0
+    books = 0
     for i in range(0, len(book_list)):
         menu = book_list[i]
         if menu[3] == "r":
             lst.append(i)
-            output = "{:d}. {} by {} {} pages".format(i, menu[0], menu[1], menu[2], menu[3])
-            print(output)
+            print("{:d}. {:<44s} by {:>33s} {:>20s} pages".format(i, menu[0], menu[1], menu[2], menu[3]))
             page = int(menu[2])
             pages += page
-            books +=1
-    print("Total pages for {} books: {}".format(books,pages))
-
+            books += 1
+    print("Total pages for {} books: {}".format(books, pages))
 
 def list_completed_book(book_list):
     print("Completed books: ")
     lst = []
-    pages=0
-    books=0
+    pages = 0
+    books = 0
     for i in range(0, len(book_list)):
         menu = book_list[i]
         if menu[3] == "c":
             lst.append(i)
-            output = "{:d}. {} by {} {} pages".format(i, menu[0], menu[1], menu[2], menu[3])
+            output = "{:d}. {:<44s} by {:>33s} {:>20s} pages".format(i, menu[0], menu[1], menu[2], menu[3])
             print(output)
             page = int(menu[2])
             pages += page
-            books +=1
+            books += 1
     print("Total pages for {} books: {}".format(books, pages))
 
-
 def add_new_book(book_list):
-    menu1 = ""
-    menu2 = ""
-    menu3 = ""
-    menu4 = 0
+    title = ""
+    author =""
+    book_pages = 0
     while True:
-        menu1 = input("Title: ")
-        menu1 = menu1.strip()
-        if menu1 == "":
+        title = input("Title: ")
+        title = title.strip()
+        if title == "":
             print("Input can not be blank")
         else:
             break
     while True:
-        menu2 = input("Auther: ")
-        menu2 = menu2.strip()
-        if menu2 == "":
+        author = input("Auther: ")
+        author = author.strip()
+        if author == "":
             print("Input can not be blank")
         else:
             break
@@ -115,18 +101,18 @@ def add_new_book(book_list):
         pages = input("Pages: ")
         pages = pages.strip()
         try:
-            menu3 = int(pages)
-            if menu3 < 0:
-                print("Number must be >= 0")
+            book_pages = int(pages)
+            if book_pages <= 0:
+                print("Number must be > 0")
             else:
                 break
         except:
-            print("Invalid input; enter a valid number")
+            print("Invalid input; Enter a valid number")
 
-    print("{} by {}, ({} pages) added to reading list".format(menu1, menu2, menu3))
-    menu =[menu1, menu2, menu3, "r"]
-    book_list.append(menu)
-
+    print("{} by {}, ({} pages) added to reading list".format(title, author, book_pages))
+    list_of_book = [title, author, str(book_pages), "r"]
+    book_list.append(list_of_book)
+# end of add books
 
 def mark_book_completed(book_list):
     list_required_book(book_list)
@@ -135,17 +121,22 @@ def mark_book_completed(book_list):
         num_of_book = int(input(">>>"))
         if book_list[num_of_book][3] == 'c':
             print("That book is already completed")
+            mark_book_completed(book_list)
         else:
             book_list[num_of_book][3] = 'c'
             print("{} by {} is completed".format(book_list[num_of_book][0], book_list[num_of_book][1]))
     except ValueError:
         print("Invalid input; enter a valid number")
-        complete_a_book(book_list)
+        mark_book_completed(book_list)
+    except TypeError:
+        print("Invalid type; Enter a valid number:")
+        mark_book_completed(book_list)
+# end of complete_a_book()
 
 def save_books(books):
     """
-    This function will help the program to update data into file books.csv
-"""
+    update data into books.csv
+    """
     books_file = open("books.csv", 'w')
     for i in books:
         for j in i:
@@ -153,8 +144,8 @@ def save_books(books):
                 print(j, end='', file=books_file)
             else:
                 print(j, end=',', file=books_file)
-        print(file)
+        print(file=books_file)
     books_file.close()
-# end of complete_a_book()
-    
+
+
 main()
